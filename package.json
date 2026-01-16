@@ -1,0 +1,31 @@
+{
+  "name": "obsd-dot-spread",
+  "version": "0.1.0",
+  "description": "Render text file previews as cards in bases.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production",
+    "lint": "eslint src"
+  },
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "bases"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@typescript-eslint/parser": "^8.52.0",
+    "builtin-modules": "^3.3.0",
+    "esbuild": "^0.21.0",
+    "eslint": "^9.39.2",
+    "eslint-plugin-obsidianmd": "^0.1.9",
+    "globals": "^17.0.0",
+    "obsidian": "^1.6.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "@tanstack/virtual-core": "^3.13.18"
+  }
+}

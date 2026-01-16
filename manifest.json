@@ -1,0 +1,10 @@
+{
+  "id": "dot-spread",
+  "name": ".spread",
+  "version": "0.1.0",
+  "minAppVersion": "1.6.0",
+  "description": "Render text file previews as cards in bases.",
+  "author": "bdsqqq",
+  "authorUrl": "https://github.com/bdsqqq",
+  "isDesktopOnly": false
+}

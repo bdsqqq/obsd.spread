@@ -1,0 +1,65 @@
+/* obsd.spread styles */
+
+.spread-view-container {
+  padding: var(--size-4-2);
+}
+
+.spread-virtual-content {
+  position: relative;
+  width: 100%;
+}
+
+.spread-virtual-rows {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.spread-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--size-4-3);
+  padding-bottom: var(--size-4-3);
+}
+
+.spread-card {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.spread-card-header {
+  padding: var(--size-4-2) var(--size-4-3);
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary-alt);
+}
+
+.spread-card-header a {
+  font-weight: var(--font-semibold);
+  color: var(--text-normal);
+  text-decoration: none;
+}
+
+.spread-card-header a:hover {
+  color: var(--text-accent);
+}
+
+.spread-card-preview {
+  padding: var(--size-4-3);
+  font-size: var(--font-smaller);
+  color: var(--text-muted);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: hidden;
+  max-height: 150px;
+}
+
+.spread-card-mono {
+  font-family: var(--font-monospace);
+  font-size: var(--font-smallest);
+}
