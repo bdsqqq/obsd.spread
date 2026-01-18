@@ -1,30 +1,12 @@
-import { Plugin, BasesView, QueryController, ViewOption, TFile, App } from "obsidian";
+import { Plugin, BasesView, QueryController, ViewOption, TFile } from "obsidian";
 import { render } from "preact";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef, useMemo, useCallback } from "preact/hooks";
 
-const LOG_PATH = ".spread-debug.log";
-let logBuffer: string[] = [];
+const DEBUG = false;
 
-async function initLog(app: App): Promise<void> {
-  const timestamp = new Date().toISOString();
-  logBuffer = [`=== spread plugin started ${timestamp} ===\n`];
-  try {
-    await app.vault.adapter.write(LOG_PATH, logBuffer.join(""));
-  } catch (e) {
-    console.error("spread: failed to init log", e);
-  }
-}
-
-async function log(app: App, msg: string): Promise<void> {
-  const line = `[${new Date().toISOString()}] ${msg}\n`;
-  logBuffer.push(line);
-  if (logBuffer.length > 500) logBuffer.shift();
-  try {
-    await app.vault.adapter.write(LOG_PATH, logBuffer.join(""));
-  } catch {
-    // ignore
-  }
+function log(msg: string): void {
+  if (DEBUG) console.debug(`[spread] ${msg}`);
 }
 
 const FRONTMATTER_REGEX = /^---\n[\s\S]*?\n---\n?/;
@@ -202,8 +184,7 @@ class SpreadView extends BasesView {
   }
 
   onload(): void {
-    void initLog(this.app);
-    void log(this.app, "onload called");
+    log("onload called");
     this.loadConfig();
     this.setupResizeObserver();
     void this.renderView();
@@ -212,10 +193,14 @@ class SpreadView extends BasesView {
   onunload(): void {
     if (this.renderTimeout !== null) {
       window.clearTimeout(this.renderTimeout);
+      this.renderTimeout = null;
     }
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
+      this.resizeObserver = null;
     }
+    this.processedEntries = [];
+    this.lastRenderHash = "";
     render(null, this.mountEl);
   }
 
@@ -244,7 +229,7 @@ class SpreadView extends BasesView {
   }
 
   onDataUpdated(): void {
-    void log(this.app, `onDataUpdated: ${this.data?.data?.length ?? 0} entries`);
+    log(`onDataUpdated: ${this.data?.data?.length ?? 0} entries`);
     this.loadConfig();
     this.scheduleRender();
   }
@@ -325,13 +310,13 @@ class SpreadView extends BasesView {
     const entries = this.data.data ?? [];
     const hash = this.computeHash(entries);
     if (hash === this.lastRenderHash) {
-      void log(this.app, `render: skipped (hash unchanged)`);
+      log("render: skipped (hash unchanged)");
       return;
     }
     this.lastRenderHash = hash;
 
     const t0 = performance.now();
-    void log(this.app, `render: starting ${entries.length} entries`);
+    log(`render: starting ${entries.length} entries`);
 
     if (entries.length === 0) {
       render(<EmptyState />, this.mountEl);
@@ -342,7 +327,7 @@ class SpreadView extends BasesView {
     const containerWidth = this.containerEl.clientWidth || 800;
     const rows = this.groupIntoRows(this.processedEntries, containerWidth);
 
-    void log(this.app, `render: ${this.processedEntries.length} entries → ${rows.length} rows`);
+    log(`render: ${this.processedEntries.length} entries → ${rows.length} rows`);
 
     render(
       <SpreadCards
@@ -355,7 +340,7 @@ class SpreadView extends BasesView {
       this.mountEl
     );
 
-    void log(this.app, `render: COMPLETE in ${(performance.now() - t0).toFixed(0)}ms`);
+    log(`render: COMPLETE in ${(performance.now() - t0).toFixed(0)}ms`);
   }
 }
 
