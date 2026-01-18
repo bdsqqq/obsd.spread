@@ -207,15 +207,20 @@ class SpreadView extends BasesView {
   }
 
   private async preprocessEntries(entries: { file?: TFile | null }[]): Promise<ProcessedEntry[]> {
-    const results: ProcessedEntry[] = [];
-    for (const entry of entries) {
-      if (!entry.file || !(entry.file instanceof TFile)) continue;
-      const preview = await this.getPreview(entry.file);
+    const validEntries = entries.filter(
+      (e): e is { file: TFile } => e.file instanceof TFile
+    );
+    
+    const previews = await Promise.all(
+      validEntries.map(e => this.getPreview(e.file))
+    );
+    
+    return validEntries.map((entry, i) => {
+      const preview = previews[i];
       const lineCount = preview.split('\n').length;
       const height = this.computeCardHeight(lineCount);
-      results.push({ file: entry.file, preview, lineCount, height });
-    }
-    return results;
+      return { file: entry.file, preview, lineCount, height };
+    });
   }
 
   private groupIntoRows(entries: ProcessedEntry[], containerWidth: number): VirtualRow[] {
@@ -335,9 +340,13 @@ class SpreadView extends BasesView {
       linkEl.className = "internal-link";
       linkEl.textContent = entry.file.basename;
       linkEl.href = entry.file.path;
-      linkEl.addEventListener("click", (e: MouseEvent) => {
+      const openFile = (e: Event) => {
         e.preventDefault();
         void this.app.workspace.openLinkText("", entry.file.path, false);
+      };
+      linkEl.addEventListener("click", openFile);
+      linkEl.addEventListener("keydown", (e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") openFile(e);
       });
       headerEl.appendChild(linkEl);
       cardEl.appendChild(headerEl);

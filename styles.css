@@ -48,6 +48,13 @@
   color: var(--text-accent);
 }
 
+.spread-card-header a:focus-visible {
+  color: var(--text-accent);
+  outline: 2px solid var(--text-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-s);
+}
+
 .spread-card-preview {
   padding: var(--size-4-3);
   font-size: var(--font-smaller);
@@ -56,7 +63,9 @@
   white-space: pre-wrap;
   word-break: break-word;
   overflow: hidden;
-  max-height: 150px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
 }
 
 .spread-card-mono {
