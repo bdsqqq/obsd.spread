@@ -154,6 +154,7 @@ class SpreadView extends BasesView {
   private monoFont = false;
 
   private renderTimeout: number | null = null;
+  private resizeTimeout: number | null = null;
   private lastRenderHash = "";
   private resizeObserver: ResizeObserver | null = null;
   private processedEntries: ProcessedEntry[] = [];
@@ -192,6 +193,10 @@ class SpreadView extends BasesView {
       window.clearTimeout(this.renderTimeout);
       this.renderTimeout = null;
     }
+    if (this.resizeTimeout !== null) {
+      window.clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = null;
+    }
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
@@ -203,9 +208,12 @@ class SpreadView extends BasesView {
 
   private setupResizeObserver(): void {
     this.resizeObserver = new ResizeObserver(() => {
-      if (this.processedEntries.length > 0) {
+      if (this.processedEntries.length === 0) return;
+      if (this.resizeTimeout !== null) return;
+      this.resizeTimeout = window.setTimeout(() => {
+        this.resizeTimeout = null;
         this.rerenderWithCurrentEntries();
-      }
+      }, 100);
     });
     this.resizeObserver.observe(this.containerEl);
   }
