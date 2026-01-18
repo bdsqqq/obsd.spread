@@ -176,6 +176,8 @@ class SpreadView extends BasesView {
 
   private renderTimeout: number | null = null;
   private lastRenderHash = "";
+  private resizeObserver: ResizeObserver | null = null;
+  private processedEntries: ProcessedEntry[] = [];
 
   constructor(controller: QueryController, scrollEl: HTMLElement) {
     super(controller);
@@ -203,6 +205,7 @@ class SpreadView extends BasesView {
     void initLog(this.app);
     void log(this.app, "onload called");
     this.loadConfig();
+    this.setupResizeObserver();
     void this.renderView();
   }
 
@@ -210,7 +213,34 @@ class SpreadView extends BasesView {
     if (this.renderTimeout !== null) {
       window.clearTimeout(this.renderTimeout);
     }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
     render(null, this.mountEl);
+  }
+
+  private setupResizeObserver(): void {
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.processedEntries.length > 0) {
+        this.rerenderWithCurrentEntries();
+      }
+    });
+    this.resizeObserver.observe(this.containerEl);
+  }
+
+  private rerenderWithCurrentEntries(): void {
+    const containerWidth = this.containerEl.clientWidth || 800;
+    const rows = this.groupIntoRows(this.processedEntries, containerWidth);
+    render(
+      <SpreadCards
+        rows={rows}
+        scrollEl={this.scrollEl}
+        showFileName={this.showFileName}
+        monoFont={this.monoFont}
+        onOpenFile={(path) => void this.app.workspace.openLinkText("", path, false)}
+      />,
+      this.mountEl
+    );
   }
 
   onDataUpdated(): void {
@@ -308,11 +338,11 @@ class SpreadView extends BasesView {
       return;
     }
 
-    const processed = await this.preprocessEntries(entries);
+    this.processedEntries = await this.preprocessEntries(entries);
     const containerWidth = this.containerEl.clientWidth || 800;
-    const rows = this.groupIntoRows(processed, containerWidth);
+    const rows = this.groupIntoRows(this.processedEntries, containerWidth);
 
-    void log(this.app, `render: ${processed.length} entries → ${rows.length} rows`);
+    void log(this.app, `render: ${this.processedEntries.length} entries → ${rows.length} rows`);
 
     render(
       <SpreadCards
