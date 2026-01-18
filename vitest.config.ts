@@ -1,14 +1,10 @@
 import { defineConfig } from "vitest/config";
+import path from "path";
 
 export default defineConfig({
-  test: {
-    deps: {
-      inline: [/^(?!obsidian)/],
-    },
-  },
   resolve: {
     alias: {
-      obsidian: "/dev/null",
+      obsidian: path.resolve(__dirname, "__mocks__/obsidian.ts"),
     },
   },
 });

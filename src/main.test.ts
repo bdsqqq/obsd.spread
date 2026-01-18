@@ -1,13 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
-
-vi.mock("obsidian", () => ({
-  Plugin: class {},
-  BasesView: class {
-    constructor(_controller: unknown) {}
-  },
-  TFile: class {},
-}));
-
+import { describe, it, expect } from "vitest";
 import {
   stripMarkdown,
   groupIntoRows,
