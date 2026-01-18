@@ -5,7 +5,7 @@ import builtins from "builtin-modules";
 const production = process.argv[2] === "production";
 
 const context = await esbuild.context({
-  entryPoints: ["src/main.ts"],
+  entryPoints: ["src/main.tsx"],
   bundle: true,
   external: [
     "obsidian",
@@ -30,6 +30,8 @@ const context = await esbuild.context({
   treeShaking: true,
   outfile: "main.js",
   minify: production,
+  jsx: "automatic",
+  jsxImportSource: "preact",
 });
 
 if (production) {

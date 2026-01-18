@@ -26,6 +26,8 @@
     "typescript": "^5.4.0"
   },
   "dependencies": {
-    "@tanstack/virtual-core": "^3.13.18"
+    "@tanstack/react-virtual": "^3.13.18",
+    "@tanstack/virtual-core": "^3.13.18",
+    "preact": "^10.28.2"
   }
 }
