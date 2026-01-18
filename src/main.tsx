@@ -1,7 +1,7 @@
 import { Plugin, BasesView, QueryController, ViewOption, TFile } from "obsidian";
 import { render } from "preact";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, useMemo, useCallback } from "preact/hooks";
+import { useCallback } from "preact/hooks";
 
 const DEBUG = false;
 
@@ -67,8 +67,6 @@ interface SpreadCardsProps {
 }
 
 function SpreadCards({ rows, scrollEl, showFileName, monoFont, onOpenFile }: SpreadCardsProps) {
-  const parentRef = useRef<HTMLDivElement>(null);
-
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollEl,
@@ -90,7 +88,6 @@ function SpreadCards({ rows, scrollEl, showFileName, monoFont, onOpenFile }: Spr
 
   return (
     <div
-      ref={parentRef}
       class="spread-virtual-content"
       style={{ height: virtualizer.getTotalSize(), position: "relative" }}
     >
