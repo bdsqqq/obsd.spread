@@ -11,7 +11,7 @@ function log(msg: string): void {
 
 const FRONTMATTER_REGEX = /^---\n[\s\S]*?\n---\n?/;
 
-function stripMarkdown(text: string): string {
+export function stripMarkdown(text: string): string {
   return text
     .replace(/^#{1,6}\s+/gm, "")
     .replace(/\*\*([^*]+)\*\*/g, "$1")
@@ -20,8 +20,8 @@ function stripMarkdown(text: string): string {
     .replace(/_([^_]+)_/g, "$1")
     .replace(/~~([^~]+)~~/g, "$1")
     .replace(/`([^`]+)`/g, "$1")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
     .replace(/!\[([^\]]*)\]\([^)]+\)/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
     .replace(/\[\[([^\]|]+)\|?([^\]]*)\]\]/g, (_, link, alias) => alias || link)
     .replace(/^>\s?/gm, "")
     .replace(/^[-*+]\s+/gm, "")
@@ -39,23 +39,41 @@ const BINARY_EXTENSIONS = new Set([
   "woff", "woff2", "ttf", "otf", "eot",
 ]);
 
-const CARD_MIN_WIDTH = 250;
-const CARD_GAP = 12;
+export const CARD_MIN_WIDTH = 250;
+export const CARD_GAP = 12;
 const HEADER_HEIGHT = 39;
 const PREVIEW_PADDING = 24;
 const LINE_HEIGHT = 20;
 const CARD_BORDER = 2;
 
-interface ProcessedEntry {
+export interface ProcessedEntry {
   file: TFile;
   preview: string;
   lineCount: number;
   height: number;
 }
 
-interface VirtualRow {
+export interface VirtualRow {
   entries: ProcessedEntry[];
   height: number;
+}
+
+export function groupIntoRows(entries: ProcessedEntry[], containerWidth: number): VirtualRow[] {
+  const cardsPerRow = Math.max(1, Math.floor((containerWidth + CARD_GAP) / (CARD_MIN_WIDTH + CARD_GAP)));
+  const rows: VirtualRow[] = [];
+  for (let i = 0; i < entries.length; i += cardsPerRow) {
+    const rowEntries = entries.slice(i, i + cardsPerRow);
+    rows.push({ entries: rowEntries, height: Math.max(...rowEntries.map((e) => e.height)) });
+  }
+  return rows;
+}
+
+export function computeHash(entries: { file?: { path?: string } | null }[]): string {
+  if (!entries.length) return "";
+  const first = entries[0]?.file?.path ?? "";
+  const mid = entries[Math.floor(entries.length / 2)]?.file?.path ?? "";
+  const last = entries[entries.length - 1]?.file?.path ?? "";
+  return `${entries.length}|${first}|${mid}|${last}`;
 }
 
 interface SpreadCardsProps {
@@ -220,7 +238,7 @@ class SpreadView extends BasesView {
 
   private rerenderWithCurrentEntries(): void {
     const containerWidth = this.containerEl.clientWidth || 800;
-    const rows = this.groupIntoRows(this.processedEntries, containerWidth);
+    const rows = groupIntoRows(this.processedEntries, containerWidth);
     render(
       <SpreadCards
         rows={rows}
@@ -291,29 +309,11 @@ class SpreadView extends BasesView {
     });
   }
 
-  private groupIntoRows(entries: ProcessedEntry[], containerWidth: number): VirtualRow[] {
-    const cardsPerRow = Math.max(1, Math.floor((containerWidth + CARD_GAP) / (CARD_MIN_WIDTH + CARD_GAP)));
-    const rows: VirtualRow[] = [];
-    for (let i = 0; i < entries.length; i += cardsPerRow) {
-      const rowEntries = entries.slice(i, i + cardsPerRow);
-      rows.push({ entries: rowEntries, height: Math.max(...rowEntries.map((e) => e.height)) });
-    }
-    return rows;
-  }
-
-  private computeHash(entries: { file?: TFile | null }[]): string {
-    if (!entries.length) return "";
-    const first = entries[0]?.file?.path ?? "";
-    const mid = entries[Math.floor(entries.length / 2)]?.file?.path ?? "";
-    const last = entries[entries.length - 1]?.file?.path ?? "";
-    return `${entries.length}|${first}|${mid}|${last}`;
-  }
-
   private async renderView(): Promise<void> {
     if (!this.data) return;
 
     const entries = this.data.data ?? [];
-    const hash = this.computeHash(entries);
+    const hash = computeHash(entries);
     if (hash === this.lastRenderHash) {
       log("render: skipped (hash unchanged)");
       return;
@@ -330,7 +330,7 @@ class SpreadView extends BasesView {
 
     this.processedEntries = await this.preprocessEntries(entries);
     const containerWidth = this.containerEl.clientWidth || 800;
-    const rows = this.groupIntoRows(this.processedEntries, containerWidth);
+    const rows = groupIntoRows(this.processedEntries, containerWidth);
 
     log(`render: ${this.processedEntries.length} entries → ${rows.length} rows`);
 

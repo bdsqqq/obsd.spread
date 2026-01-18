@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "node esbuild.config.mjs production",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run"
   },
   "keywords": [
     "obsidian",
@@ -23,7 +24,8 @@
     "eslint-plugin-obsidianmd": "^0.1.9",
     "globals": "^17.0.0",
     "obsidian": "^1.6.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitest": "^4.0.17"
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.13.18",
