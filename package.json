@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "Render text file previews as cards in bases.",
   "main": "main.js",
+  "engines": {
+    "node": "22.x"
+  },
+  "packageManager": "pnpm@10.28.2",
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "node esbuild.config.mjs production",
@@ -16,16 +20,17 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^18.0.0",
+    "@types/node": "^22.20.1",
     "@typescript-eslint/parser": "^8.52.0",
     "builtin-modules": "^3.3.0",
-    "esbuild": "^0.21.0",
+    "esbuild": "^0.25.12",
     "eslint": "^9.39.2",
     "eslint-plugin-obsidianmd": "^0.1.9",
     "globals": "^17.0.0",
-    "obsidian": "^1.6.0",
+    "obsidian": "^1.11.4",
     "typescript": "^5.4.0",
-    "vitest": "^4.0.17"
+    "vite": "^7.3.6",
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.13.18",
